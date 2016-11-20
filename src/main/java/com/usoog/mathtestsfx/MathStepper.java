@@ -100,6 +100,10 @@ public class MathStepper {
 		return y;
 	}
 
+	public double getAngle() {
+		return angle;
+	}
+
 	public int getLength() {
 		return length;
 	}

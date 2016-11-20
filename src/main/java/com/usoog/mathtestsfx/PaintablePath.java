@@ -21,11 +21,14 @@ import java.util.List;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.ClosePath;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 /**
  *
@@ -41,11 +44,13 @@ public class PaintablePath implements Paintable {
 
 	private int currentLength = 0;
 
-	private Bounds bbox = new BoundingBox(0, 0, 0, 0);
+	private Bounds bbox = new BoundingBox(-1, -1, 2, 2);
 
 	private boolean staticChanged;
-	private Circle c;
-	private double strokeWidth = 1;
+	private Shape arrow;
+	private Rotate cRotate = new Rotate();
+	private Translate cMove = new Translate(0, 0);
+	private double strokeWidth = 0.2;
 
 	public PaintablePath() {
 		path = stylePath(new Path());
@@ -53,12 +58,14 @@ public class PaintablePath implements Paintable {
 	}
 
 	public void clear() {
-		parent.getChildren().clear();
 		paths.clear();
 		path = stylePath(new Path());
 		path.getElements().add(new MoveTo(0, 0));
+		bbox = new BoundingBox(-1, -1, 2, 2);
+		parent.displayBounds(bbox);
+		parent.getChildren().clear();
 		parent.getChildren().add(path);
-		bbox = new BoundingBox(0, 0, 0, 0);
+		parent.getChildren().add(arrow);
 	}
 
 	private Path stylePath(Path p) {
@@ -84,17 +91,19 @@ public class PaintablePath implements Paintable {
 		return paths;
 	}
 
+	public void setAngle(double angle) {
+		cRotate.setAngle(180-angle);
+	}
+
 	public void moveTo(final double x, final double y) {
 		final Path localPath = path;
 		localPath.getElements().add(new MoveTo(x, y));
-		c.setCenterX(x);
-		c.setCenterY(y);
+		cMove.setX(x);
+		cMove.setY(y);
 	}
 
 	public void lineTo(double x, double y) {
-		final double xNew = x * 10;
-		final double yNew = y * 10;
-		LineTo lineTo = new LineTo(xNew, yNew);
+		LineTo lineTo = new LineTo(x, y);
 		path.getElements().add(lineTo);
 		currentLength++;
 		if (currentLength >= lengthLimit) {
@@ -102,13 +111,13 @@ public class PaintablePath implements Paintable {
 			paths.add(path);
 			path = stylePath(new Path());
 			final Path localPath = path;
-			localPath.getElements().add(new MoveTo(xNew, yNew));
+			localPath.getElements().add(new MoveTo(x, y));
 			parent.getChildren().add(localPath);
 		}
 
-		updateBoundingBox(xNew, yNew);
-		c.setCenterX(xNew);
-		c.setCenterY(yNew);
+		updateBoundingBox(x, y);
+		cMove.setX(x);
+		cMove.setY(y);
 	}
 
 	private void updateBoundingBox(double x, double y) {
@@ -146,9 +155,19 @@ public class PaintablePath implements Paintable {
 	public void setParent(PaintingPanel parent) {
 		this.parent = parent;
 
-		c = new Circle(10, 10, 2);
-		c.setFill(Color.BLUE);
-		parent.getChildren().add(c);
+		Path p = new Path();
+		p.getElements().add(new MoveTo(-0.5, 0));
+		p.getElements().add(new LineTo(0.5, 0));
+		p.getElements().add(new LineTo(0, 1.5));
+		p.getElements().add(new MoveTo(-0.5, 0));
+		p.getElements().add(new ClosePath());
+		p.getTransforms().add(cMove);
+		p.getTransforms().add(cRotate);
+		p.setFill(Color.GREEN);
+		p.setStroke(null);
+		parent.getChildren().add(p);
+
+		arrow = p;
 
 		parent.getChildren().add(path);
 	}

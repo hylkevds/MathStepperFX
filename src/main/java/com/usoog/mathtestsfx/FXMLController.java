@@ -57,8 +57,11 @@ public class FXMLController implements Initializable {
 	@FXML
 	private void reset() {
 		stopRunning();
-		path.clear();
+		startAngle = spinnerStartAngle.getValue();
+		deltaAngle = spinnerDeltaAngle.getValue();
 		stepper.reset(startAngle, deltaAngle);
+		path.clear();
+		path.setAngle(startAngle);
 	}
 
 	@FXML
@@ -125,6 +128,14 @@ public class FXMLController implements Initializable {
 					path.lineTo(x, y);
 				}
 			});
+		} else {
+			final double a = stepper.getAngle();
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					path.setAngle(a);
+				}
+			});
 		}
 	}
 
@@ -136,6 +147,7 @@ public class FXMLController implements Initializable {
 	public void initialize(URL url, ResourceBundle rb) {
 		painter.init();
 		path.setParent(painter);
+
 		spinnerDelay.valueProperty().addListener(new ChangeListener<Integer>() {
 			@Override
 			public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
@@ -159,6 +171,12 @@ public class FXMLController implements Initializable {
 			@Override
 			public void changed(ObservableValue<? extends Double> observable, Double oldValue, Double newValue) {
 				deltaAngle = newValue;
+			}
+		});
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				reset();
 			}
 		});
 	}

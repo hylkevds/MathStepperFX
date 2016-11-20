@@ -59,7 +59,7 @@
 			</javafx.scene.control.Label>
 			<Spinner fx:id="spinnerStrokeWidth" editable="true" prefWidth="200" >
 				<valueFactory>
-					<SpinnerValueFactory.DoubleSpinnerValueFactory initialValue="1" max="10" min="0.01" />
+					<SpinnerValueFactory.DoubleSpinnerValueFactory initialValue="0.2" max="10" min="0.01" amountToStepBy="0.1" />
 				</valueFactory>
 			</Spinner>
 		</HBox>

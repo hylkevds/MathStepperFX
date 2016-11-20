@@ -63,6 +63,7 @@ public class PaintingPanel extends Region {
 		double wScale = paneWidth / bWidth;
 		double hScale = paneHeight / bHeight;
 		double scale = Math.min(wScale, hScale);
+		scale = Math.min(scale, 20.0);
 		setTranslateX(scale * (-bounds.getMinX() + 0.5 * (paneWidth - bWidth)));
 		setTranslateY(scale * (-bounds.getMinY() + 0.5 * (paneHeight - bHeight)));
 		setScaleX(scale);
